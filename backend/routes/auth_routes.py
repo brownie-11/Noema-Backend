@@ -39,6 +39,16 @@ def signup(payload: SignupRequest, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(user)
 
+     # ── Notify admin of new signup ──────────────────────────
+    import threading
+    from backend.utils.email_service import send_signup_notification
+    threading.Thread(
+        target=send_signup_notification,
+        args=(user.username, user.email, user.created_at),
+        daemon=True
+    ).start()
+    # ───
+
     token = create_access_token(data={"sub": str(user.id), "role": user.role.value})
     return TokenResponse(access_token=token, user=UserPublic.model_validate(user))
 
