@@ -10,7 +10,7 @@ class Settings:
     DEBUG: bool = os.getenv("DEBUG", "false").lower() == "true"
 
     # Database
-    DATABASE_URL: str = os.getenv("DATABASE_URL", "sqlite:///./noema.db")
+    DATABASE_URL: str = ""
 
     # JWT
     SECRET_KEY: str = os.getenv("SECRET_KEY", "noema-secret-change-in-production-use-openssl-rand-hex-32")
