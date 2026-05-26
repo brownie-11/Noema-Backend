@@ -22,6 +22,7 @@ async def lifespan(app: FastAPI):
     logger.info("Noema backend starting — initialising database…")
     init_db()
     _seed_base_nodes()
+    _seed_admin() 
     logger.info("Database ready. Noema is alive.")
     yield
     logger.info("Noema backend shutting down.")
@@ -105,7 +106,36 @@ def _seed_base_nodes():
     finally:
         db.close()
 
+# ── Seed admin user on first run ─────────────────────────────
+def _seed_admin():
+    from backend.database import SessionLocal
+    from backend.models import User, UserRole
+    from backend.utils.security import hash_password
+    from datetime import datetime
 
+    ADMIN_EMAIL    = "lampteywilliam48@gmail.com"      # ← change this
+    ADMIN_USERNAME = "william"             # ← change this
+    ADMIN_PASSWORD = "Quabena_419"  # ← change this
+
+    db = SessionLocal()
+    try:
+        exists = db.query(User).filter(User.email == ADMIN_EMAIL).first()
+        if not exists:
+            admin = User(
+                username=ADMIN_USERNAME,
+                email=ADMIN_EMAIL,
+                password_hash=hash_password(ADMIN_PASSWORD),
+                role=UserRole.admin,
+                last_login=datetime.utcnow(),
+            )
+            db.add(admin)
+            db.commit()
+            print(f"Admin seeded: @{ADMIN_USERNAME}")
+    except Exception as e:
+        db.rollback()
+        print("Admin seed skipped:", e)
+    finally:
+        db.close()
 # ── App ───────────────────────────────────────────────────────────────────────
 
 app = FastAPI(
