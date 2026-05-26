@@ -1,21 +1,49 @@
+import os
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-from backend.config import settings
-
-engine = create_engine(
-    settings.DATABASE_URL,
-    connect_args={"check_same_thread": False},  # needed for SQLite
-    echo=settings.DEBUG,
-)
-
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 Base = declarative_base()
 
 
+def _get_database_url() -> str:
+    """
+    Get and fix the database URL from environment.
+    Railway gives postgres:// but SQLAlchemy needs postgresql://
+    Falls back to local SQLite if nothing is set.
+    """
+    url = os.getenv("DATABASE_URL", "")
+
+    if not url:
+        # No env variable at all — use local SQLite
+        url = "sqlite:///./noema.db"
+
+    if url.startswith("postgres://"):
+        # Railway uses the old postgres:// prefix — fix it
+        url = url.replace("postgres://", "postgresql://", 1)
+
+    return url
+
+
+DATABASE_URL = _get_database_url()
+
+# Build engine — SQLite needs check_same_thread=False, PostgreSQL doesn't
+if DATABASE_URL.startswith("sqlite"):
+    engine = create_engine(
+        DATABASE_URL,
+        connect_args={"check_same_thread": False},
+        echo=False,
+    )
+else:
+    engine = create_engine(
+        DATABASE_URL,
+        echo=False,
+    )
+
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+
 def get_db():
-    """Dependency: yields a database session, always closes after use."""
     db = SessionLocal()
     try:
         yield db
@@ -24,6 +52,5 @@ def get_db():
 
 
 def init_db():
-    """Create all tables. Called on app startup."""
-    from backend import models  # noqa: F401 — import to register models
+    from backend import models  # noqa — registers all models
     Base.metadata.create_all(bind=engine)
