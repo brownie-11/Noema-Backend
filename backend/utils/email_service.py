@@ -100,3 +100,35 @@ def send_submission_notification(
     except Exception as exc:
         logger.warning("Failed to send submission email for #%s: %s", submission_id, exc)
         return False
+
+def send_signup_notification(username: str, user_email: str, timestamp) -> bool:
+    """Email the admin when a new user signs up."""
+    if not settings.ADMIN_EMAIL or not settings.SMTP_USER:
+        return False
+    try:
+        msg = MIMEMultipart("alternative")
+        msg["Subject"] = f"[Noema] New mind joined — @{username}"
+        msg["From"] = settings.SMTP_USER
+        msg["To"] = settings.ADMIN_EMAIL
+
+        plain = f"""
+── NOEMA · NEW MIND ────────────────────────────
+
+Username  : @{username}
+Email     : {user_email}
+Joined    : {timestamp.strftime('%Y-%m-%d %H:%M:%S UTC')}
+
+────────────────────────────────────────────────
+View at: {settings.ADMIN_EMAIL and 'overflowing-radiance-production-e422.up.railway.app'}
+        """.strip()
+
+        msg.attach(MIMEText(plain, "plain"))
+        with smtplib.SMTP(settings.SMTP_HOST, settings.SMTP_PORT, timeout=10) as server:
+            server.ehlo()
+            server.starttls()
+            server.login(settings.SMTP_USER, settings.SMTP_PASS)
+            server.sendmail(settings.SMTP_USER, settings.ADMIN_EMAIL, msg.as_string())
+        return True
+    except Exception as exc:
+        logger.warning("Signup notification failed: %s", exc)
+        return False
