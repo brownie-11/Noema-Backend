@@ -28,12 +28,20 @@ def _get_database_url() -> str:
 DATABASE_URL = _get_database_url()
 
 # Build engine — SQLite needs check_same_thread=False, PostgreSQL doesn't
-if DATABASE_URL.startswith("sqlite"):
-    engine = create_engine(
-        DATABASE_URL,
-        connect_args={"check_same_thread": False},
-        echo=False,
-    )
+# NEW
+import os
+
+def _make_engine():
+    url = settings.DATABASE_URL or ""
+    # PostgreSQL from Railway comes as postgres:// — SQLAlchemy needs postgresql://
+    if url.startswith("postgres://"):
+        url = url.replace("postgres://", "postgresql://", 1)
+    kwargs = {}
+    if url.startswith("sqlite"):
+        kwargs["connect_args"] = {"check_same_thread": False}
+    return create_engine(url, echo=settings.DEBUG, **kwargs)
+
+engine = _make_engine()
 else:
     engine = create_engine(
         DATABASE_URL,
