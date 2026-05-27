@@ -127,37 +127,6 @@ def _seed_admin():
         db.close()
 
 
-def _repair_admin_hash():
-    """
-    If the existing admin user has a non-bcrypt hash (argon2 from old install),
-    re-hash it using ADMIN_PASSWORD env var so logins work immediately.
-    """
-    from backend.database import SessionLocal
-    from backend.models import User
-    from backend.utils.security import hash_password, needs_rehash
-
-    email    = os.getenv("ADMIN_EMAIL", "").strip()
-    password = os.getenv("ADMIN_PASSWORD", "").strip()
-
-    if not email or not password:
-        return
-
-    db = SessionLocal()
-    try:
-        user = db.query(User).filter(User.email == email).first()
-        if not user:
-            return
-        if needs_rehash(user.password_hash):
-            user.password_hash = hash_password(password)
-            db.commit()
-            logger.info("Repaired argon2 → bcrypt hash for @%s", user.username)
-        else:
-            logger.info("Hash for @%s is already bcrypt — no repair needed.", user.username)
-    except Exception as e:
-        db.rollback()
-        logger.warning("Hash repair failed: %s", e)
-    finally:
-        db.close()
 
 
 # ── Lifespan ───────────────────────────────────────────────────────────────────
