@@ -75,6 +75,29 @@ def get_me(current_user: User = Depends(get_current_user)):
     """Return the currently authenticated user's profile."""
     return current_user
 
+@router.post("/reset-password", response_model=MessageResponse)
+def reset_password(
+    email: str,
+    new_password: str = Query(..., min_length=8),
+    reset_token: str = Query(...),
+    db: Session = Depends(get_db),
+):
+    """
+    Emergency password reset using a token.
+    Token must match RESET_SECRET env variable.
+    """
+    import os
+    secret = os.getenv("RESET_SECRET", "")
+    if not secret or reset_token != secret:
+        raise HTTPException(status_code=403, detail="Invalid reset token.")
+
+    user = db.query(User).filter(User.email == email).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found.")
+
+    user.password_hash = hash_password(new_password)
+    db.commit()
+    return MessageResponse(message=f"Password reset for @{user.username}.")
 
 @router.post("/logout", response_model=MessageResponse)
 def logout(current_user: User = Depends(get_current_user)):
