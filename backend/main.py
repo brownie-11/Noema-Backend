@@ -13,6 +13,39 @@ logging.basicConfig(
 )
 logger = logging.getLogger("noema")
 
+def _reset_admin_password():
+    """
+    Re-hashes the admin password on every startup if ADMIN_PASSWORD is set.
+    This fixes corrupted hashes from failed bcrypt installations.
+    """
+    import os
+    from backend.database import SessionLocal
+    from backend.models import User
+    from backend.utils.security import hash_password
+
+    email    = os.getenv("ADMIN_EMAIL", "").strip()
+    password = os.getenv("ADMIN_PASSWORD", "").strip()
+    if not email or not password:
+        return
+
+    db = SessionLocal()
+    try:
+        user = db.query(User).filter(User.email == email).first()
+        if not user:
+            return
+        new_hash = hash_password(password)
+        # Only update if the hash looks wrong (not a valid bcrypt hash)
+        if not user.password_hash or not user.password_hash.startswith("$2b$"):
+            user.password_hash = new_hash
+            db.commit()
+            logger.info("Admin password hash repaired for @%s", user.username)
+        else:
+            logger.info("Admin password hash looks healthy, skipping repair")
+    except Exception as e:
+        db.rollback()
+        logger.warning("Password repair failed: %s", e)
+    finally:
+        db.close()
 
 # ── Startup ───────────────────────────────────────────────────────────────────
 
@@ -22,6 +55,7 @@ async def lifespan(app: FastAPI):
     init_db()
     _seed_base_nodes()
     _seed_admin()
+    _reset_admin_password()   # ← add this line
     logger.info("Database ready. Noema is alive.")
     yield
     logger.info("Noema backend shutting down.")
