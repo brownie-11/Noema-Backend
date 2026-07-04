@@ -919,7 +919,7 @@ footer{
       <span id="user-name-chip">●</span>
       <span>Leave</span>
     </div>
-    <span class="nav-link" id="admin-nav-link" style="display:none;color:var(--accent);border:1px solid rgba(200,169,126,.3);padding:.3rem .7rem;border-radius:2px;" onclick="scrollToAdmin()">⬡ Admin</span>
+    <span class="nav-link" id="admin-nav-link" style="display:none;color:var(--accent)" onclick="scrollToAdmin()">⬡ Admin</span>
     <button class="nav-btn" onclick="openModal('login')" id="login-btn">Enter</button>
   </div>
 </nav>
@@ -931,6 +931,7 @@ footer{
   <p class="hero-sub">Noema is a mind-space for thinkers, writers, and dreamers — where every idea becomes a living page, every connection a constellation, every thought a universe.</p>
   <div class="hero-cta">
     <button class="btn-primary" onclick="openModal('signup')">Begin your mind</button>
+    <a class="btn-primary" href="thoughts.html" style="text-decoration:none;display:inline-flex;align-items:center;gap:.5rem;">Read Thoughts</a>
     <button class="btn-secondary" onclick="scrollTo('#explore')">Explore minds</button>
   </div>
 </section>
@@ -1256,6 +1257,67 @@ footer{
       The mind<br/><em>behind the minds.</em>
     </h2>
 
+    <!-- ── ADD A THOUGHT ── -->
+    <div style="margin-bottom:3rem">
+      <div class="sp-label" style="margin-bottom:1.5rem">Publish a thought to the archive</div>
+      <div style="border:1px solid var(--border);border-radius:2px;background:var(--surface);overflow:hidden">
+
+        <!-- Title + Category row -->
+        <div style="display:grid;grid-template-columns:1fr auto;gap:1px;border-bottom:1px solid var(--border)">
+          <input id="thought-title" placeholder="Title of this thought…"
+            style="padding:1.2rem 1.5rem;background:transparent;border:none;color:var(--text);font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:300;outline:none;width:100%"/>
+          <select id="thought-category"
+            style="padding:1.2rem 1.5rem;background:var(--deep);border:none;border-left:1px solid var(--border);color:var(--muted);font-family:'DM Mono',monospace;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;outline:none;cursor:pointer;appearance:none;-webkit-appearance:none;min-width:140px">
+            <option value="consciousness">Consciousness</option>
+            <option value="existence">Existence</option>
+            <option value="time">Time</option>
+            <option value="memory">Memory</option>
+            <option value="love">Love</option>
+            <option value="fear">Fear</option>
+            <option value="dreams">Dreams</option>
+            <option value="philosophy">Philosophy</option>
+            <option value="human">Human Nature</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+
+        <!-- Preview (short excerpt shown on cards) -->
+        <div style="border-bottom:1px solid var(--border);padding:.6rem 1.5rem">
+          <div style="font-family:'DM Mono',monospace;font-size:.56rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:.4rem">Preview line (shown on thought cards)</div>
+          <input id="thought-preview" placeholder="One compelling sentence that makes readers want to open this thought…"
+            style="width:100%;background:transparent;border:none;color:rgba(232,228,220,.6);font-family:'Cormorant Garamond',serif;font-size:.98rem;font-style:italic;outline:none;padding:.2rem 0"/>
+        </div>
+
+        <!-- Full body -->
+        <textarea id="thought-body" rows="10" placeholder="Write the full thought here. This is what readers see when they open the card…"
+          style="width:100%;padding:1.5rem;background:transparent;border:none;color:var(--text);font-family:'Cormorant Garamond',serif;font-size:1.08rem;line-height:1.88;resize:vertical;outline:none;min-height:220px;border-bottom:1px solid var(--border)"></textarea>
+
+        <!-- Footer actions -->
+        <div style="padding:.9rem 1.5rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem">
+          <div style="font-family:'DM Mono',monospace;font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)" id="thought-status">
+            Ready to publish
+          </div>
+          <div style="display:flex;gap:.7rem">
+            <button class="sp-btn" onclick="clearThoughtForm()">Clear</button>
+            <button class="sp-btn primary" onclick="publishThought()">Publish to archive →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Manage existing thoughts -->
+      <div style="margin-top:1.5rem">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:.8rem">
+          <div style="font-family:'DM Mono',monospace;font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);opacity:.8">Published thoughts</div>
+          <button class="sp-btn" onclick="adminLoadThoughts()">Refresh list</button>
+        </div>
+        <div id="admin-thoughts-list" style="border:1px solid var(--border);border-radius:2px;background:var(--surface)">
+          <div style="padding:1.5rem;text-align:center;font-family:'Cormorant Garamond',serif;font-style:italic;color:rgba(232,228,220,.2)">
+            Click Refresh to see published thoughts
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Stats row -->
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1px;border:1px solid var(--border);margin-bottom:3rem">
       <div style="background:var(--deep);padding:2rem;text-align:center">
@@ -1279,8 +1341,7 @@ footer{
         <div style="display:flex;gap:.5rem">
           <button class="sp-btn" onclick="adminLoadSubmissions('pending')">Pending</button>
           <button class="sp-btn" onclick="adminLoadSubmissions('approved')">Approved</button>
-          </div><div>
-            <button class="sp-btn" onclick="adminLoadSubmissions('rejected')">Rejected</button>
+          <button class="sp-btn" onclick="adminLoadSubmissions('rejected')">Rejected</button>
           <button class="sp-btn" onclick="adminLoadSubmissions()">All</button>
         </div>
       </div>
@@ -1320,7 +1381,7 @@ footer{
    ═══════════════════════════════════════════════════════════════ */
 
 // ── Config ──────────────────────────────────────────────────────
-const API_BASE = 'https://noema-backend-production-7d5e.up.railway.app'; // ← your new Railway URL
+const API_BASE = 'https://noema-backend-production-7d5e.up.railway.app';
 const TOKEN_KEY = 'noema_jwt';
 const USER_KEY  = 'noema_user';
 const NODES_KEY = 'noema_extra_nodes';
@@ -1373,7 +1434,9 @@ function adminShowPanel(){
     if(link){
       link.style.display = '';
       link.style.color = 'var(--accent)';
-      link.style.fontWeight = '500';
+      link.style.border = '1px solid rgba(200,169,126,.3)';
+      link.style.padding = '.3rem .7rem';
+      link.style.borderRadius = '2px';
     }
     adminLoadStats();
   } else {
@@ -1494,6 +1557,87 @@ async function adminDelete(id){
 async function adminPromote(id){
   const r = await api('POST', `/admin/promote/${id}`);
   if(r){ notify(`"${r.title}" is now a constellation node.`); adminLoadSubmissions(); adminLoadStats(); }
+}
+
+// ── Admin Thoughts (thoughts.html archive) ────────────────────────────────
+
+async function publishThought(){
+  const title    = document.getElementById('thought-title')?.value.trim();
+  const category = document.getElementById('thought-category')?.value || 'other';
+  const preview  = document.getElementById('thought-preview')?.value.trim();
+  const body     = document.getElementById('thought-body')?.value.trim();
+
+  if(!title){   setThoughtStatus('Give this thought a title.', 'err'); return; }
+  if(!preview){ setThoughtStatus('Add a preview line.', 'err'); return; }
+  if(!body){    setThoughtStatus('The thought needs a body.', 'err'); return; }
+
+  setThoughtStatus('Publishing…');
+  const result = await api('POST', '/thoughts', {
+    title, category, preview, body,
+    author: currentUser?.username || 'William · Noema',
+    published: true
+  });
+
+  if(result && result.id){
+    notify(`"${result.title}" published to the archive.`);
+    setThoughtStatus('Published ✓', 'ok');
+    clearThoughtForm();
+    adminLoadThoughts();
+  } else {
+    setThoughtStatus('Failed to publish. Try again.', 'err');
+  }
+}
+
+function setThoughtStatus(msg, state=''){
+  const el = document.getElementById('thought-status');
+  if(!el) return;
+  el.textContent = msg;
+  el.style.color = state === 'err' ? '#c87e8a' : state === 'ok' ? '#7ec8a0' : 'var(--muted)';
+  if(state === 'ok') setTimeout(()=>{ el.textContent='Ready to publish'; el.style.color='var(--muted)'; }, 2500);
+}
+
+function clearThoughtForm(){
+  ['thought-title','thought-preview','thought-body'].forEach(id=>{
+    const el = document.getElementById(id);
+    if(el) el.value = '';
+  });
+  const sel = document.getElementById('thought-category');
+  if(sel) sel.value = 'consciousness';
+  setThoughtStatus('Ready to publish');
+}
+
+async function adminLoadThoughts(){
+  const box = document.getElementById('admin-thoughts-list');
+  const data = await api('GET', '/thoughts/admin', null, true);
+  if(!data || data.length === 0){
+    box.innerHTML = `<div style="padding:1.5rem;text-align:center;font-family:'Cormorant Garamond',serif;font-style:italic;color:rgba(232,228,220,.2)">No thoughts published yet.</div>`;
+    return;
+  }
+  box.innerHTML = data.map(t => `
+    <div style="padding:1rem 1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:1rem;flex-wrap:wrap">
+      <div style="flex:1;min-width:200px">
+        <div style="font-family:'DM Mono',monospace;font-size:.55rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:.3rem">
+          ${t.category} · ${t.published ? 'published' : 'draft'}
+        </div>
+        <div style="font-family:'Cormorant Garamond',serif;font-size:1rem;font-weight:400;margin-bottom:.2rem">${t.title}</div>
+        <div style="font-family:'DM Mono',monospace;font-size:.55rem;color:var(--muted)">${t.preview.slice(0,80)}${t.preview.length>80?'…':''}</div>
+      </div>
+      <div style="display:flex;gap:.4rem;flex-shrink:0">
+        <button class="sp-btn" style="font-size:.6rem;padding:.35rem .8rem" onclick="adminToggleThought(${t.id}, ${t.published})">${t.published ? 'Unpublish' : 'Publish'}</button>
+        <button class="sp-btn" style="font-size:.6rem;padding:.35rem .8rem;color:#c87e8a" onclick="adminDeleteThought(${t.id}, '${t.title.replace(/'/g,"\'")}')">Delete</button>
+      </div>
+    </div>`).join('');
+}
+
+async function adminToggleThought(id, currentlyPublished){
+  const r = await api('PUT', `/thoughts/admin/${id}`, {published: !currentlyPublished});
+  if(r){ notify(currentlyPublished ? 'Thought unpublished.' : 'Thought published.'); adminLoadThoughts(); }
+}
+
+async function adminDeleteThought(id, title){
+  if(!confirm(`Delete "${title}"? This cannot be undone.`)) return;
+  const r = await api('DELETE', `/thoughts/admin/${id}`);
+  if(r){ notify(`"${title}" deleted.`); adminLoadThoughts(); }
 }
 
 // ─── Background canvas ───────────────────────────────────────────
@@ -2207,14 +2351,12 @@ async function login(){
     updateAuthUI(); closeModal();
     notify(`Welcome back, ${currentUser.username}. The thoughts await.`);
     showApiStatus('ok','Connected · session restored');
-    // If admin — scroll to admin panel after short delay
     if(currentUser.role === 'admin'){
       setTimeout(()=>{
-        notify('Admin panel ready — scroll down or click Admin in nav.');
+        notify('Admin panel ready — scroll down or click ⬡ Admin in nav.');
         document.getElementById('admin-section')?.scrollIntoView({behavior:'smooth'});
-      }, 1200);
+      }, 1000);
     }
-    // Load their constellation data
     const loaded = await loadConstellationFromBackend();
     if(loaded){ stRenderList(); }
     await loadFragmentsFromBackend();
