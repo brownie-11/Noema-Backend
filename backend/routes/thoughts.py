@@ -11,6 +11,8 @@ from backend.dependencies import get_admin
 router = APIRouter(prefix="/thoughts", tags=["Thoughts"])
 
 
+# ── Table ─────────────────────────────────────────────────────────────────────
+
 class Thought(Base):
     __tablename__ = "thoughts"
     id         = Column(Integer, primary_key=True)
@@ -23,6 +25,8 @@ class Thought(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow)
 
+
+# ── Schemas ───────────────────────────────────────────────────────────────────
 
 class ThoughtOut(BaseModel):
     id:         int
@@ -38,10 +42,10 @@ class ThoughtOut(BaseModel):
 
 class ThoughtIn(BaseModel):
     title:     str
-    category:  str = "other"
+    category:  str  = "other"
     preview:   str
     body:      str
-    author:    str = "William · Noema"
+    author:    str  = "William · Noema"
     published: bool = True
 
 
@@ -54,30 +58,45 @@ class ThoughtUpdate(BaseModel):
     published: Optional[bool] = None
 
 
-# Public — anyone can read
+# ── Public routes ─────────────────────────────────────────────────────────────
+
 @router.get("", response_model=list[ThoughtOut])
 def list_thoughts(
     category: Optional[str] = None,
     db: Session = Depends(get_db),
 ):
+    """Return all published thoughts — public, no auth needed."""
     q = db.query(Thought).filter(Thought.published == True)  # noqa
     if category and category != "all":
         q = q.filter(Thought.category == category)
     return q.order_by(Thought.created_at.desc()).all()
 
 
+@router.get("/{thought_id}", response_model=ThoughtOut)
+def get_thought(thought_id: int, db: Session = Depends(get_db)):
+    t = db.query(Thought).filter(
+        Thought.id == thought_id, Thought.published == True  # noqa
+    ).first()
+    if not t:
+        raise HTTPException(404, "Thought not found.")
+    return t
+
+
+# ── Admin routes ──────────────────────────────────────────────────────────────
+
 @router.get("/admin", response_model=list[ThoughtOut])
 def admin_list(db: Session = Depends(get_db), admin=Depends(get_admin)):
+    """Return ALL thoughts including unpublished — admin only."""
     return db.query(Thought).order_by(Thought.created_at.desc()).all()
 
 
-# Admin only — create, update, delete
 @router.post("", response_model=ThoughtOut, status_code=201)
 def create_thought(
-    body: ThoughtIn,
-    db: Session = Depends(get_db),
+    body:  ThoughtIn,
+    db:    Session = Depends(get_db),
     admin=Depends(get_admin),
 ):
+    """Publish a new thought — admin only."""
     now = datetime.utcnow()
     t = Thought(
         title=body.title, category=body.category,
@@ -92,8 +111,8 @@ def create_thought(
 @router.put("/admin/{thought_id}", response_model=ThoughtOut)
 def update_thought(
     thought_id: int,
-    body: ThoughtUpdate,
-    db: Session = Depends(get_db),
+    body:  ThoughtUpdate,
+    db:    Session = Depends(get_db),
     admin=Depends(get_admin),
 ):
     t = db.query(Thought).filter(Thought.id == thought_id).first()
@@ -109,7 +128,7 @@ def update_thought(
 @router.delete("/admin/{thought_id}")
 def delete_thought(
     thought_id: int,
-    db: Session = Depends(get_db),
+    db:    Session = Depends(get_db),
     admin=Depends(get_admin),
 ):
     t = db.query(Thought).filter(Thought.id == thought_id).first()
