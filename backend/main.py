@@ -1,6 +1,5 @@
 """
-Noema Backend — Fresh Start
-No passlib. Pure bcrypt. Clean auth that works.
+Noema Backend — main.py
 """
 import os
 import logging
@@ -18,12 +17,11 @@ logging.basicConfig(
 log = logging.getLogger("noema")
 
 
-# ── Startup ───────────────────────────────────────────────────────────────────
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     log.info("Noema starting up…")
     init_db()
+    _create_reset_tokens_table()
     _seed_base_nodes()
     _ensure_admin()
     log.info("Noema is alive.")
@@ -31,12 +29,19 @@ async def lifespan(app: FastAPI):
     log.info("Noema shutting down.")
 
 
+def _create_reset_tokens_table():
+    """Create the password_reset_tokens table if it doesn't exist."""
+    try:
+        from backend.routes.auth import PasswordResetToken  # noqa
+        from backend.database import engine, Base
+        Base.metadata.create_all(bind=engine)
+        log.info("Password reset tokens table ready.")
+    except Exception as e:
+        log.warning("Reset token table setup: %s", e)
+
+
 def _ensure_admin():
-    """
-    Create OR repair the admin account on every startup.
-    Always re-hashes the password from ADMIN_PASSWORD env var.
-    This permanently fixes any hash corruption from old installs.
-    """
+    """Create OR repair the admin account on every startup."""
     from backend.models import User, Role
     from backend.utils.security import hash_password
 
@@ -50,30 +55,23 @@ def _ensure_admin():
 
     db = SessionLocal()
     try:
-        from datetime import datetime
         user = db.query(User).filter(User.email == email).first()
-
         if not user:
-            # First run — create the admin
             user = User(
-                username=username,
-                email=email,
+                username=username, email=email,
                 password_hash=hash_password(password),
                 role=Role.admin,
-                last_login=datetime.utcnow(),
+                last_login=__import__('datetime').datetime.utcnow(),
             )
-            db.add(user)
-            db.commit()
+            db.add(user); db.commit()
             log.info("Admin created: @%s", username)
         else:
             # Always re-hash from env var — fixes any corruption permanently
-            new_hash = hash_password(password)
-            user.password_hash = new_hash
-            user.role = Role.admin   # ensure role is correct
-            user.is_active = True    # ensure account is active
+            user.password_hash = hash_password(password)
+            user.role      = Role.admin
+            user.is_active = True
             db.commit()
             log.info("Admin hash refreshed for @%s — login will work.", user.username)
-
     except Exception as e:
         db.rollback()
         log.error("Admin setup failed: %s", e)
@@ -86,7 +84,7 @@ def _seed_base_nodes():
     from backend.models import ThoughtNode, ThoughtConnection, ConnectionType
 
     BASE = [
-        ("The Watcher Within",        "consciousness","#c8a97e","Who observes the observer? At the boundary of introspection lies infinite recursion — the eye that cannot see itself.",.50,.44,24),
+        ("The Watcher Within",        "consciousness","#c8a97e","Who observes the observer? At the edge of introspection lies an infinite recursion — the eye that cannot see itself.",.50,.44,24),
         ("The Permission of Being",   "existence",    "#c8a07e","Nobody asked to be here. And yet here we are, inventing reasons to stay, to build, to leave marks on a world that will outlast our reasons.",.22,.28,18),
         ("Simultaneity of Grief",     "time",         "#8bb5c8","Past and present collapse in loss. The person grieving now is also the child who did not yet know grief was already on its way.",.78,.26,19),
         ("Cartography of Attachment", "love",         "#a07ec8","To love is to memorize someone. Their particular weight of silence. A geography that becomes your own internal landscape.",.15,.62,16),
@@ -107,7 +105,6 @@ def _seed_base_nodes():
         (8,2,"expansion"),(11,0,"continuation"),(4,3,"emotional_resonance"),
         (1,11,"inspiration"),(6,2,"contradiction"),
     ]
-
     db = SessionLocal()
     try:
         if db.query(ThoughtNode).filter(ThoughtNode.is_base == True).count() > 0:  # noqa
@@ -136,11 +133,8 @@ def _seed_base_nodes():
         db.close()
 
 
-# ── App ───────────────────────────────────────────────────────────────────────
-
 app = FastAPI(title="Noema API", version="2.0.0", lifespan=lifespan)
 
-# CORS — allow all origins so Netlify, localhost, file:// all work
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
