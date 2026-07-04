@@ -173,6 +173,7 @@ app.include_router(users.router)
 app.include_router(submissions.router)
 app.include_router(constellation.router)
 app.include_router(admin.router)
+app.include_router(thoughts.router)
 
 
 @app.get("/health")
