@@ -21,7 +21,6 @@ log = logging.getLogger("noema")
 async def lifespan(app: FastAPI):
     log.info("Noema starting up…")
     init_db()
-    _create_reset_tokens_table()
     _seed_base_nodes()
     _ensure_admin()
     log.info("Noema is alive.")
@@ -29,21 +28,16 @@ async def lifespan(app: FastAPI):
     log.info("Noema shutting down.")
 
 
-def _create_reset_tokens_table():
-    """Create the password_reset_tokens table if it doesn't exist."""
-    try:
-        from backend.routes.auth import PasswordResetToken  # noqa
-        from backend.database import engine, Base
-        Base.metadata.create_all(bind=engine)
-        log.info("Password reset tokens table ready.")
-    except Exception as e:
-        log.warning("Reset token table setup: %s", e)
-
-
 def _ensure_admin():
-    """Create OR repair the admin account on every startup."""
+    """
+    Smart admin setup:
+    - First run: create admin from env vars
+    - Subsequent runs: only fix hash if it is corrupted or password changed
+    - Never re-hashes a valid working hash (that was breaking login on restart)
+    """
     from backend.models import User, Role
-    from backend.utils.security import hash_password
+    from backend.utils.security import hash_password, verify_password
+    from datetime import datetime
 
     email    = os.getenv("ADMIN_EMAIL",    "").strip()
     username = os.getenv("ADMIN_USERNAME", "william").strip()
@@ -56,22 +50,54 @@ def _ensure_admin():
     db = SessionLocal()
     try:
         user = db.query(User).filter(User.email == email).first()
+
         if not user:
+            # First run — create admin
             user = User(
-                username=username, email=email,
+                username=username,
+                email=email,
                 password_hash=hash_password(password),
                 role=Role.admin,
-                last_login=__import__('datetime').datetime.utcnow(),
+                last_login=datetime.utcnow(),
             )
-            db.add(user); db.commit()
-            log.info("Admin created: @%s", username)
-        else:
-            # Always re-hash from env var — fixes any corruption permanently
-            user.password_hash = hash_password(password)
-            user.role      = Role.admin
-            user.is_active = True
+            db.add(user)
             db.commit()
-            log.info("Admin hash refreshed for @%s — login will work.", user.username)
+            log.info("Admin created: @%s", username)
+            return
+
+        changed = False
+
+        # Check if hash is valid bcrypt format
+        hash_valid = (
+            user.password_hash and
+            (user.password_hash.startswith("$2b$") or
+             user.password_hash.startswith("$2a$"))
+        )
+
+        if not hash_valid:
+            # Hash is corrupted — fix it
+            user.password_hash = hash_password(password)
+            changed = True
+            log.info("Admin hash was corrupted — repaired for @%s.", username)
+        elif not verify_password(password, user.password_hash):
+            # Valid hash but wrong password (env var changed) — update it
+            user.password_hash = hash_password(password)
+            changed = True
+            log.info("Admin password updated for @%s.", username)
+        else:
+            log.info("Admin @%s is healthy — no hash changes needed.", username)
+
+        # Ensure role and active are correct
+        if user.role != Role.admin:
+            user.role = Role.admin
+            changed = True
+        if not user.is_active:
+            user.is_active = True
+            changed = True
+
+        if changed:
+            db.commit()
+
     except Exception as e:
         db.rollback()
         log.error("Admin setup failed: %s", e)
@@ -80,7 +106,6 @@ def _ensure_admin():
 
 
 def _seed_base_nodes():
-    """Seed the 12 immutable curator nodes on first run."""
     from backend.models import ThoughtNode, ThoughtConnection, ConnectionType
 
     BASE = [
