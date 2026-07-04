@@ -1,158 +1,3 @@
-
-Claude finished the response
-It’s now working
-
-Amazing! Everything is live. 🎉
-
-Now do these final steps to connect everything
-Step 1 — Copy your Railway URL
-
-It looks like:
-
-https://noema-backend-production-xxxx.up.railway.app
-Step 2 — Update index.html
-
-Open index.html in VS Code. Press Ctrl+F and search for API_BASE. Change it to your new Railway URL:
-
-javascript
-const API_BASE = 'https://your-new-railway-url.up.railway.app';
-Step 3 — Deploy to Netlify
-
-Go to netlify.com
-Click your noema-minds site
-Click Deploys tab
-Drag and drop your updated index.html
-Step 4 — Test login
-
-Go to your Netlify site, click Enter, log in with:
-
-Email: lampteywilliam48@gmail.com
-Password: Quabena_419
-You should see your username appear and the admin section at the bottom of the page.
-
-You now have a fully working system
-Status
-Backend	✅ Live on Railway
-Database	✅ PostgreSQL running
-Admin account	✅ Created
-12 base nodes	✅ Seeded
-Frontend	✅ Live on Netlify
-Login	✅ Should work now
-You built a complete full-stack philosophical platform. Let me know how the login goes.
-
-Okay. So when I log in the Railway with my admin login, everything works. And then their login also work. But then when I log in, I thought to see the admin panel or the page so that I can, you know,
-
-The admin panel is hidden inside your index.html — it only appears when you're logged in as admin. But since your old index.html might not have the latest admin panel code, let me check what's happening.
-
-First — confirm your role came back as admin
-When you logged in on your Netlify site, open the browser developer tools:
-
-Press F12 (or right click → Inspect)
-Click Application tab
-Click Local Storage on the left
-Click your Netlify URL
-Find noema_user and click it
-You should see something like:
-
-json
-{
-  "username": "william",
-  "email": "lampteywilliam48@gmail.com",
-  "role": "admin"
-}
-If role says "admin" but panel doesn't show
-Your index.html is missing the admin panel code. Send me your current index.html and I'll add the full working admin panel to it.
-
-If role says "user" instead of "admin"
-Your account exists but doesn't have admin role. Go to Railway docs:
-
-https://your-railway-url.up.railway.app/docs
-Find POST /login → log in → check the response. Does it say "role": "admin" or "role": "user"?
-
-The quickest way to check everything
-Tell me what you see in Local Storage under noema_user and I'll tell you exactly what to fix.
-
-It says admin
-
-Your role is correct. The admin panel is just not showing up because your index.html is missing the admin panel HTML and JavaScript code.
-
-Upload your current index.html here and I'll add the complete working admin panel to it and send it straight back to you.
-
-
-<!DOCTYPE html> <html lang="en"> <head> <meta charset="UTF-8" /> <meta name="viewport" content="width=device-width, initial-scale=1.0" /> <title>Noema</title> <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Mono:wg
-
-pasted
-
-I can see the full file. The admin panel HTML is already there and adminShowPanel() is already being called in updateAuthUI(). The issue is one thing — your currentUser is being restored from localStorage but the admin panel check runs before the user object is fully ready.
-
-Let me fix it and send you the corrected file.
-
-
-Ran 2 commands
-Ran 2 commands
-The file was sent as document text not as a file upload. I'll build the fixed version from the document content:
-
-
-Create working file
-Create working file
-I have the full file content from the document. Let me write the fixed version directly with all the bugs corrected:
-
-
-Start the file
-Start the file
-The file is too large to write via heredoc. Let me use Python to write it properly:
-
-
-Ran 5 commands
-Ran 5 commands
-Now I know exactly what to fix. The admin panel IS appearing but at the very bottom of a long page — the user doesn't know to scroll there. I'll fix adminShowPanel to notify and scroll, and make the admin nav link more prominent:
-
-
-Ran 4 commands
-Ran 4 commands
-The API_BASE still points to the old broken backend. That's a critical bug — the old backend has the broken password hashes. Let me fix that too:
-
-
-Ran 2 commands, read a file
-Ran 2 commands, read a file
-Here's what was wrong and what I fixed.
-
-What was broken
-The admin panel was showing — you just didn't know it was there. It lives at the very bottom of the page, below the footer. On a long cinematic page with many sections, there was no signal telling you to scroll down. The nav link was subtle and easy to miss.
-
-The API_BASE was still pointing to your old broken Railway backend — the one with the corrupted password hashes. Every API call was going to the wrong server.
-
-What I fixed
-1 — API_BASE corrected to your new working backend noema-backend-production-7d5e.up.railway.app
-
-2 — After you log in as admin, the page now automatically scrolls down to the admin section and shows a notification: "Admin panel ready — scroll down or click Admin in nav"
-
-3 — The Admin nav link now has a visible border and a ⬡ symbol so it stands out clearly in the nav bar
-
-4 — scrollToAdmin() function added so clicking the nav link jumps directly to the panel
-
-What to do now
-Download the index.html file above
-Go to Netlify → your site → Deploys tab
-Drag and drop the file
-Go to your live site and log in with your admin credentials
-The page will automatically scroll to your admin panel
-One more thing — your index.html has your Railway URL hardcoded as noema-backend-production-7d5e.up.railway.app. If that's not your exact Railway URL, open the file in VS Code, search for API_BASE and replace it with your actual URL before uploading.
-
-
-Index
-Code · HTML 
-
-Want to be notified when Claude responds?
-
-
-
-
-
-Claude is AI and can make mistakes. Please double-check responses.
-
-
-Index · HTML
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -186,7 +31,7 @@ body{
   min-height:100vh;
   overflow-x:hidden;
 }
- 
+
 /* NAV */
 nav{
   position:fixed;top:0;left:0;right:0;z-index:100;
@@ -225,17 +70,17 @@ nav{
   border-radius:2px;
 }
 .nav-btn:hover{background:var(--glass2);border-color:var(--accent)}
- 
+
 /* CANVAS */
 #bg-canvas{
   position:fixed;top:0;left:0;width:100%;height:100%;
   pointer-events:none;z-index:0;
   opacity:.6;
 }
- 
+
 /* SECTIONS */
 section{position:relative;z-index:1}
- 
+
 /* HERO */
 .hero{
   min-height:100vh;
@@ -299,7 +144,7 @@ section{position:relative;z-index:1}
   transition:all .4s;
 }
 .btn-secondary:hover{color:var(--text);border-color:var(--border2)}
- 
+
 /* QUOTE STRIP */
 .quote-strip{
   padding:4rem 2rem;
@@ -322,7 +167,7 @@ section{position:relative;z-index:1}
   color:var(--accent);font-style:normal;
   text-transform:uppercase;
 }
- 
+
 /* FEATURES */
 .features{padding:7rem 2rem}
 .section-label{
@@ -370,7 +215,7 @@ section{position:relative;z-index:1}
   font-size:.84rem;line-height:1.75;
   color:var(--muted);font-weight:300;
 }
- 
+
 /* MIND MAP DEMO */
 .mindmap-section{
   padding:7rem 2rem;
@@ -399,7 +244,7 @@ section{position:relative;z-index:1}
   touch-action:none;
 }
 #mindmap-canvas:active{cursor:grabbing}
- 
+
 /* EXPLORE */
 .explore{padding:7rem 2rem;background:var(--deep)}
 .explore-grid{
@@ -422,7 +267,7 @@ section{position:relative;z-index:1}
   border-color:var(--accent);
   background:rgba(200,169,126,.08);
 }
- 
+
 /* THOUGHT CARDS */
 .thought-cards{
   display:grid;
@@ -465,7 +310,7 @@ section{position:relative;z-index:1}
   letter-spacing:.08em;
 }
 .tc-dot{width:3px;height:3px;border-radius:50%;background:var(--border2)}
- 
+
 /* AI COMPANION */
 .ai-section{
   padding:7rem 2rem;
@@ -537,7 +382,7 @@ section{position:relative;z-index:1}
   transition:background .3s;
 }
 .ai-send:hover{background:var(--glass)}
- 
+
 /* PAGE EDITOR PREVIEW */
 .editor-section{padding:7rem 2rem;background:var(--deep)}
 .editor-demo{
@@ -588,7 +433,7 @@ section{position:relative;z-index:1}
   width:100%;resize:none;outline:none;
   min-height:180px;
 }
- 
+
 /* FOOTER */
 footer{
   padding:4rem 3rem;
@@ -606,7 +451,7 @@ footer{
   font-size:.65rem;letter-spacing:.18em;
   color:var(--muted);text-transform:uppercase;
 }
- 
+
 /* MODAL */
 .modal-overlay{
   display:none;position:fixed;inset:0;z-index:200;
@@ -676,12 +521,12 @@ footer{
 }
 .modal-switch a{color:var(--accent);cursor:pointer;text-decoration:none}
 .modal-switch a:hover{text-decoration:underline}
- 
+
 /* SCROLLBAR */
 ::-webkit-scrollbar{width:4px}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
- 
+
 /* AUTH STATE */
 .user-chip{
   display:none;
@@ -694,7 +539,7 @@ footer{
   text-transform:uppercase;cursor:pointer;
 }
 .user-chip.visible{display:flex}
- 
+
 /* NOTIFICATION */
 .notif{
   position:fixed;bottom:2rem;right:2rem;z-index:300;
@@ -710,7 +555,7 @@ footer{
   pointer-events:none;
 }
 .notif.show{opacity:1;transform:none}
- 
+
 /* MIND MAP CONTROLS */
 .mm-ctrl{
   font-family:'DM Mono',monospace;font-size:.9rem;
@@ -744,7 +589,7 @@ footer{
 }
 .mm-conn-pill:hover .mm-conn-name{color:var(--accent)}
 @keyframes mmPanelIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
- 
+
 /* ── UPLOAD STUDIO ── */
 .upload-studio{padding:7rem 2rem;background:var(--void)}
 .studio-grid{
@@ -830,7 +675,7 @@ footer{
   font-size:1rem;font-style:italic;
   color:rgba(232,228,220,.2);
 }
- 
+
 /* ── SEND A FRAGMENT ── */
 .fragment-section{padding:7rem 2rem;background:var(--deep)}
 .fragment-inner{max-width:780px;margin:0 auto}
@@ -898,7 +743,7 @@ footer{
   font-size:.84rem;color:var(--muted);line-height:1.8;
   font-family:'DM Mono',monospace;letter-spacing:.06em;
 }
- 
+
 /* ── THOUGHT DETAIL MODAL ── */
 .thought-modal-overlay{
   display:none;position:fixed;inset:0;z-index:210;
@@ -977,7 +822,7 @@ footer{
   border-radius:1px;color:var(--muted);margin-left:.5rem;
   vertical-align:middle;
 }
- 
+
 /* ── AUTH FORM STATES ── */
 .form-error{
   font-family:'DM Mono',monospace;font-size:.62rem;
@@ -991,7 +836,7 @@ footer{
 }
 /* spinner in nav button while API call runs */
 .nav-btn.loading{opacity:.6;pointer-events:none}
- 
+
 /* ── API CONNECTION STATUS ── */
 .api-status{
   position:fixed;bottom:2rem;left:2rem;z-index:300;
@@ -1010,7 +855,7 @@ footer{
 .api-status .dot.green{background:#7ec8a0}
 .api-status .dot.red{background:#c87e8a}
 .api-status .dot.yellow{background:var(--accent)}
- 
+
 /* ── EXPLORE FRAGMENTS TAB ── */
 .explore-tag[data-cat="fragment"]{
   border-color:rgba(139,181,200,.25);
@@ -1020,7 +865,7 @@ footer{
   border-color:var(--accent2);
   background:rgba(139,181,200,.08);
 }
- 
+
 /* ── THOUGHT CARDS GRID EMPTY STATE ── */
 .tc-empty{
   grid-column:1/-1;
@@ -1029,7 +874,7 @@ footer{
   font-size:1rem;font-style:italic;
   color:rgba(232,228,220,.18);
 }
- 
+
 /* ── BASE NODE PROTECTION INDICATOR ── */
 .sn-base-badge{
   font-family:'DM Mono',monospace;font-size:.48rem;
@@ -1038,7 +883,7 @@ footer{
   border-radius:1px;color:rgba(200,169,126,.4);
   flex-shrink:0;margin-right:.3rem;
 }
- 
+
 /* responsive */
 @media(max-width:768px){
   nav{padding:1rem 1.2rem}
@@ -1058,9 +903,9 @@ footer{
 </style>
 </head>
 <body>
- 
+
 <canvas id="bg-canvas"></canvas>
- 
+
 <nav>
   <div class="logo" onclick="scrollToTop()">N<span>◦</span>ema</div>
   <div class="nav-links">
@@ -1078,7 +923,7 @@ footer{
     <button class="nav-btn" onclick="openModal('login')" id="login-btn">Enter</button>
   </div>
 </nav>
- 
+
 <!-- HERO -->
 <section class="hero">
   <div class="hero-eyebrow">A living universe of thought</div>
@@ -1089,13 +934,13 @@ footer{
     <button class="btn-secondary" onclick="scrollTo('#explore')">Explore minds</button>
   </div>
 </section>
- 
+
 <!-- QUOTE -->
 <div class="quote-strip">
   <blockquote id="cycling-quote">"The mind is not a vessel to be filled, but a fire to be kindled."</blockquote>
   <cite id="cycling-author">Plutarch</cite>
 </div>
- 
+
 <!-- FEATURES -->
 <section class="features" id="features">
   <div class="section-label">Architecture of thought</div>
@@ -1132,7 +977,7 @@ footer{
     </div>
   </div>
 </section>
- 
+
 <!-- MIND MAP -->
 <section class="mindmap-section" id="mindmap">
   <div class="section-label">Architecture of thoughts · Curated by William</div>
@@ -1170,7 +1015,7 @@ footer{
     </div>
   </div>
 </section>
- 
+
 <!-- EXPLORE -->
 <section class="explore" id="explore">
   <div class="section-label">Explore minds</div>
@@ -1189,7 +1034,7 @@ footer{
     <!-- filled by JS -->
   </div>
 </section>
- 
+
 <!-- AI COMPANION -->
 <section class="ai-section" id="companion">
   <div class="ai-inner">
@@ -1211,7 +1056,7 @@ footer{
     </div>
   </div>
 </section>
- 
+
 <!-- EDITOR PREVIEW -->
 <section class="editor-section" id="editor-preview">
   <div class="section-label">The writing space</div>
@@ -1236,7 +1081,7 @@ footer{
     </div>
   </div>
 </section>
- 
+
 <!-- ══════════════════════════════════════════════
      UPLOAD STUDIO
 ═══════════════════════════════════════════════ -->
@@ -1244,18 +1089,18 @@ footer{
   <div class="section-label">The Architect's Studio</div>
   <h2 class="mindmap-title" style="text-align:center;">Add thoughts to<br/><em>the constellation.</em></h2>
   <p class="mindmap-sub" style="text-align:center;">Write your own thoughts or attribute a thought to someone else. Each entry becomes a node in the living architecture.</p>
- 
+
   <div class="studio-grid">
- 
+
     <!-- LEFT: COMPOSE PANEL -->
     <div class="studio-panel">
       <div class="sp-label">Compose a thought node</div>
- 
+
       <div class="sp-field">
         <label>Title</label>
         <input class="sp-input" id="st-title" placeholder="Name this thought…" />
       </div>
- 
+
       <div class="sp-row">
         <div class="sp-field">
           <label>Category</label>
@@ -1277,19 +1122,19 @@ footer{
           <input class="sp-input" id="st-author" placeholder="Your name or source…" />
         </div>
       </div>
- 
+
       <div class="sp-field">
         <label>The thought</label>
         <textarea class="sp-textarea" id="st-body" placeholder="Let the thought arrive fully…"></textarea>
       </div>
- 
+
       <div class="sp-field">
         <label>Connect to node (optional)</label>
         <select class="sp-select" id="st-connect">
           <option value="">— No connection —</option>
         </select>
       </div>
- 
+
       <div class="sp-field" id="st-conntype-wrap" style="display:none">
         <label>Connection type</label>
         <select class="sp-select" id="st-conntype">
@@ -1302,13 +1147,13 @@ footer{
           <option value="existential conflict">Existential Conflict</option>
         </select>
       </div>
- 
+
       <div class="sp-actions">
         <button class="sp-btn primary" onclick="stAddNode()">Place in constellation</button>
         <button class="sp-btn" onclick="stClear()">Clear</button>
       </div>
     </div>
- 
+
     <!-- RIGHT: LIVE NODE LIST -->
     <div class="studio-panel">
       <div class="sp-label">Constellation nodes <span id="st-count" style="margin-left:.4rem;opacity:.5"></span></div>
@@ -1321,10 +1166,10 @@ footer{
       </div>
       <div style="margin-top:1.5rem;padding-top:1rem;border-top:1px solid var(--border);font-family:'DM Mono',monospace;font-size:.55rem;letter-spacing:.14em;text-transform:uppercase;color:rgba(200,169,126,.3);">Changes reflect live in the constellation above</div>
     </div>
- 
+
   </div>
 </section>
- 
+
 <!-- ══════════════════════════════════════════════
      SEND A FRAGMENT
 ═══════════════════════════════════════════════ -->
@@ -1333,7 +1178,7 @@ footer{
     <div class="section-label" style="text-align:center;margin-bottom:3rem">Leave a fragment</div>
     <h2 class="mindmap-title" style="text-align:center;">What thought<br/><em>refuses to leave you?</em></h2>
     <p class="mindmap-sub" style="text-align:center;max-width:520px;margin:0.8rem auto 0;">Write it here. Your fragment travels directly to the Architect's inbox. If it resonates, it will find its place in the living constellation.</p>
- 
+
     <div class="fragment-form" id="fragment-form">
       <div class="ff-prompt" id="ff-prompt">What truth has been haunting you lately?</div>
       <div class="ff-row">
@@ -1352,7 +1197,7 @@ footer{
         <button class="ff-send" onclick="sendFragment()">Send into the void ↗</button>
       </div>
     </div>
- 
+
     <div class="ff-success" id="ff-success">
       <div class="ff-success-title">Your fragment has entered the archive.</div>
       <div class="ff-success-body">The Architect has received it.<br/>If it resonates, it will become a node in the constellation.<br/><br/><span style="color:rgba(200,169,126,.4)">Curated by the Architect · Noema</span></div>
@@ -1361,20 +1206,20 @@ footer{
     </div>
   </div>
 </section>
- 
+
 <!-- FOOTER -->
 <footer>
   <div class="footer-logo">N◦ema</div>
   <div class="footer-tagline">A living universe of thought · All minds welcome</div>
 </footer>
- 
+
 <!-- MODALS -->
 <div class="modal-overlay" id="modal-overlay" onclick="closeModalOnBg(event)">
   <div class="modal" id="modal">
     <!-- filled by JS -->
   </div>
 </div>
- 
+
 <!-- THOUGHT DETAIL MODAL -->
 <div class="thought-modal-overlay" id="thought-modal-overlay" onclick="if(event.target===this)closeThoughtModal()">
   <div class="thought-modal-box">
@@ -1394,15 +1239,15 @@ footer{
     </div>
   </div>
 </div>
- 
+
 <!-- API STATUS -->
 <div class="api-status" id="api-status">
   <span class="dot" id="api-dot"></span><span id="api-msg"></span>
 </div>
- 
+
 <!-- NOTIFICATION -->
 <div class="notif" id="notif"></div>
- 
+
 <!-- ADMIN PANEL — only renders if logged in as admin -->
 <section id="admin-section" style="display:none;padding:7rem 2rem;background:var(--void)">
   <div style="max-width:900px;margin:0 auto">
@@ -1410,7 +1255,7 @@ footer{
     <h2 class="mindmap-title" style="text-align:center;margin-bottom:3rem">
       The mind<br/><em>behind the minds.</em>
     </h2>
- 
+
     <!-- Stats row -->
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1px;border:1px solid var(--border);margin-bottom:3rem">
       <div style="background:var(--deep);padding:2rem;text-align:center">
@@ -1426,7 +1271,7 @@ footer{
         <div style="font-family:'DM Mono',monospace;font-size:.6rem;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin-top:.5rem">Approved Fragments</div>
       </div>
     </div>
- 
+
     <!-- Submissions -->
     <div style="margin-bottom:3rem">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:1rem">
@@ -1444,7 +1289,7 @@ footer{
         </div>
       </div>
     </div>
- 
+
     <!-- Users -->
     <div>
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem">
@@ -1457,10 +1302,10 @@ footer{
         </div>
       </div>
     </div>
- 
+
   </div>
 </section>
- 
+
 <script>
 /* ═══════════════════════════════════════════════════════════════
    NOEMA v5 — Complete Frontend
@@ -1472,7 +1317,7 @@ footer{
    • Explore Minds: Approved user fragments appear as cards
    • Thought detail modal: click any card to read in full
    ═══════════════════════════════════════════════════════════════ */
- 
+
 // ── Config ──────────────────────────────────────────────────────
 const API_BASE = 'https://noema-backend-production-7d5e.up.railway.app'; // ← your new Railway URL
 const TOKEN_KEY = 'noema_jwt';
@@ -1480,10 +1325,10 @@ const USER_KEY  = 'noema_user';
 const NODES_KEY = 'noema_extra_nodes';
 const EDGES_KEY = 'noema_extra_edges';
 const FRAGS_KEY = 'noema_fragments';
- 
+
 // ── API helper ───────────────────────────────────────────────────
 let _token = localStorage.getItem(TOKEN_KEY) || null;
- 
+
 async function api(method, path, body=null, auth=true){
   const headers = {'Content-Type':'application/json'};
   if(auth && _token) headers['Authorization'] = `Bearer ${_token}`;
@@ -1496,7 +1341,7 @@ async function api(method, path, body=null, auth=true){
     return r.ok ? await r.json() : null;
   }catch(e){ return null; /* offline → fallback */ }
 }
- 
+
 function _handleAuthExpired(){
   _token=null;
   localStorage.removeItem(TOKEN_KEY);
@@ -1505,7 +1350,7 @@ function _handleAuthExpired(){
   updateAuthUI();
   notify('Session expired — please sign in again.');
 }
- 
+
 // ── API status indicator ─────────────────────────────────────────
 function showApiStatus(state, msg){
   const s=document.getElementById('api-status');
@@ -1518,7 +1363,7 @@ function showApiStatus(state, msg){
   s._t=setTimeout(()=>s.classList.remove('show'),3500);
 }
 // ─── Admin Panel ──────────────────────────────────────────────
- 
+
 function adminShowPanel(){
   const section = document.getElementById('admin-section');
   const link    = document.getElementById('admin-nav-link');
@@ -1535,11 +1380,11 @@ function adminShowPanel(){
     if(link)    link.style.display    = 'none';
   }
 }
- 
+
 function scrollToAdmin(){
   document.getElementById('admin-section')?.scrollIntoView({behavior:'smooth'});
 }
- 
+
 async function adminLoadStats(){
   const [users, pending, approved] = await Promise.all([
     api('GET', '/admin/users'),
@@ -1550,7 +1395,7 @@ async function adminLoadStats(){
   if(pending)  document.getElementById('admin-stat-pending').textContent  = pending.length;
   if(approved) document.getElementById('admin-stat-approved').textContent = approved.length;
 }
- 
+
 async function adminLoadSubmissions(status=''){
   const path = status
     ? `/admin/submissions?status_filter=${status}`
@@ -1588,7 +1433,7 @@ async function adminLoadSubmissions(status=''){
     </div>
   `).join('');
 }
- 
+
 async function adminLoadUsers(){
   const users = await api('GET', '/admin/users');
   const box   = document.getElementById('admin-users-list');
@@ -1628,35 +1473,35 @@ async function adminLoadUsers(){
     </div>`;
   }).join('');
 }
- 
+
 async function adminApprove(id){
   const r = await api('POST', `/admin/approve/${id}`);
   if(r){ notify('Fragment approved — now visible in Explore Minds.'); adminLoadSubmissions(); adminLoadStats(); }
 }
- 
+
 async function adminReject(id){
   const r = await api('POST', `/admin/reject/${id}`);
   if(r){ notify('Fragment rejected.'); adminLoadSubmissions(); adminLoadStats(); }
 }
- 
+
 async function adminDelete(id){
   if(!confirm('Permanently delete this submission?')) return;
   const r = await api('DELETE', `/admin/submissions/${id}`);
   if(r){ notify('Submission deleted.'); adminLoadSubmissions(); adminLoadStats(); }
 }
- 
+
 async function adminPromote(id){
   const r = await api('POST', `/admin/promote/${id}`);
   if(r){ notify(`"${r.title}" is now a constellation node.`); adminLoadSubmissions(); adminLoadStats(); }
 }
- 
+
 // ─── Background canvas ───────────────────────────────────────────
 const bgC=document.getElementById('bg-canvas');
 const bgCtx=bgC.getContext('2d');
 let particles=[];
 function resizeBg(){bgC.width=innerWidth;bgC.height=innerHeight}
 resizeBg();addEventListener('resize',resizeBg);
- 
+
 function initParticles(){
   particles=[];
   for(let i=0;i<120;i++){
@@ -1671,7 +1516,7 @@ function initParticles(){
   }
 }
 initParticles();
- 
+
 function animBg(){
   bgCtx.clearRect(0,0,bgC.width,bgC.height);
   particles.forEach(p=>{
@@ -1694,11 +1539,11 @@ function animBg(){
   requestAnimationFrame(animBg);
 }
 animBg();
- 
+
 // ─── Architecture of Thoughts ─────────────────────────────────
 const mmC=document.getElementById('mindmap-canvas');
 const mmCtx=mmC.getContext('2d');
- 
+
 // ── Base nodes — IMMUTABLE, never modified or deleted ──────────
 const BASE_NODES=[
   {id:0,label:'The Watcher Within',cat:'consciousness',hex:'#c8a97e',body:'Who observes the observer? At the boundary of introspection lies infinite recursion — the eye that cannot see itself yet shapes everything it touches.',x:.50,y:.44,r:24},
@@ -1723,12 +1568,12 @@ const BASE_EDGES=[
   {a:1,b:11,type:'inspiration'},{a:6,b:2,type:'contradiction'},
 ];
 const BASE_IDS = new Set(BASE_NODES.map(n=>n.id));
- 
+
 // Working arrays — these include base + user-added nodes
 // Deep clone base nodes so user drags don't corrupt the originals
 let archNodes = BASE_NODES.map(n=>({...n}));
 let archEdges = BASE_EDGES.map(e=>({...e}));
- 
+
 // ── Persistence helpers ──────────────────────────────────────────
 function saveConstellationLocal(){
   // Only save user-added nodes (non-base)
@@ -1739,7 +1584,7 @@ function saveConstellationLocal(){
     localStorage.setItem(EDGES_KEY, JSON.stringify(archEdges));
   }catch(e){}
 }
- 
+
 function loadConstellationLocal(){
   try{
     const savedEdges = localStorage.getItem(EDGES_KEY);
@@ -1762,7 +1607,7 @@ function loadConstellationLocal(){
     archEdges = BASE_EDGES.map(e=>({...e}));
   }
 }
- 
+
 async function saveNodePositionToBackend(node){
   if(!_token) return;
   // Map local id to backend id — only user-added nodes have matching IDs in the backend
@@ -1770,14 +1615,14 @@ async function saveNodePositionToBackend(node){
     position_x: node.x, position_y: node.y
   });
 }
- 
+
 async function loadConstellationFromBackend(){
   const data = await api('GET','/constellation',null,false);
   if(!data||!data.nodes) return false;
   // Merge backend nodes with base, preserving drag positions for base nodes
   const posMap = {};
   archNodes.forEach(n=>{ posMap[n.id]=n; });
- 
+
   archNodes = BASE_NODES.map(n=>({...n,...(posMap[n.id]?{x:posMap[n.id].x,y:posMap[n.id].y}:{})}));
   data.nodes.filter(n=>!BASE_IDS.has(n.id)).forEach(bn=>{
     archNodes.push({
@@ -1787,7 +1632,7 @@ async function loadConstellationFromBackend(){
       author: bn.author, isBackend: true
     });
   });
- 
+
   // Rebuild edges from backend connections
   archEdges = BASE_EDGES.map(e=>({...e}));
   if(data.connections){
@@ -1798,21 +1643,21 @@ async function loadConstellationFromBackend(){
   }
   return true;
 }
- 
+
 // ── State ──
 let mmZoom=1,mmPanX=0,mmPanY=0,mmPhase=0;
 let mmHov=null,mmOpen=null;
 let mmDragging=false,mmLastMouse={x:0,y:0},mmDragMoved=false;
 let mmDragNode=null,mmDragStartWorld={fx:0,fy:0};
 let mmDragSaveTimer=null;
- 
+
 function setMMSize(){
   const rect=mmC.getBoundingClientRect();
   mmC.width=rect.width; mmC.height=rect.height;
 }
 setTimeout(setMMSize,100);
 addEventListener('resize',setMMSize);
- 
+
 function mmW(){return mmC.width}
 function mmH(){return mmC.height}
 function toScreen(fx,fy){ return {x:fx*mmW()*mmZoom+mmPanX, y:fy*mmH()*mmZoom+mmPanY}; }
@@ -1834,7 +1679,7 @@ function hexToRgb(hex){
   return `${r},${g},${b}`;
 }
 function getNodeById(id){ return archNodes.find(n=>n.id===id)||null; }
- 
+
 // ── Events ──
 mmC.addEventListener('mousedown',e=>{
   const rect=mmC.getBoundingClientRect();
@@ -1891,7 +1736,7 @@ mmC.addEventListener('wheel',e=>{
   mmPanY=sy-(sy-mmPanY)*(newZoom/mmZoom);
   mmZoom=newZoom;
 },{passive:false});
- 
+
 let mmTouchLast=null;
 mmC.addEventListener('touchstart',e=>{
   if(e.touches.length===1){const t=e.touches[0];mmTouchLast={x:t.clientX,y:t.clientY};mmDragMoved=false;}
@@ -1912,11 +1757,11 @@ mmC.addEventListener('touchend',e=>{
     if(n) openMmPanel(n); else closeMmPanel();
   }
 },{passive:true});
- 
+
 function mmZoomIn(){mmZoom=Math.min(4,mmZoom*1.2);}
 function mmZoomOut(){mmZoom=Math.max(.3,mmZoom*.83);}
 function mmReset(){mmZoom=1;mmPanX=0;mmPanY=0;}
- 
+
 // ── Panel — CRASH-PROOF (uses find, never array index) ──────────
 function openMmPanel(n){
   mmOpen=n;
@@ -1947,12 +1792,12 @@ function closeMmPanel(){
   mmOpen=null;
   document.getElementById('mm-panel').style.display='none';
 }
- 
+
 // ── Draw loop — CRASH-PROOF edges ───────────────────────────────
 function drawMM(){
   mmCtx.clearRect(0,0,mmW(),mmH());
   mmPhase+=.006;
- 
+
   for(let i=0;i<50;i++){
     const px=((Math.sin(i*3.7+mmPhase*.1)*0.5+0.5)*mmW()*1.4-mmW()*.2+mmPanX*.04)%mmW();
     const py=((Math.cos(i*2.3+mmPhase*.08)*0.5+0.5)*mmH()*1.4-mmH()*.2+mmPanY*.04)%mmH();
@@ -1960,7 +1805,7 @@ function drawMM(){
     mmCtx.beginPath(); mmCtx.arc(px,py,.6,0,Math.PI*2);
     mmCtx.fillStyle=`rgba(200,169,126,${a})`; mmCtx.fill();
   }
- 
+
   // edges — FIX: use find() not array index — never crashes on missing nodes
   archEdges.forEach(edge=>{
     const na=getNodeById(edge.a), nb=getNodeById(edge.b);
@@ -1987,7 +1832,7 @@ function drawMM(){
       mmCtx.fillText(edge.type,lx,ly-8);
     }
   });
- 
+
   archNodes.forEach(n=>{
     const p=nodePos(n);
     const r=n.r*mmZoom;
@@ -2042,18 +1887,18 @@ function drawMM(){
       mmCtx.fillText(n.cat.toUpperCase(),p.x,p.y-r-9*mmZoom);
     }
   });
- 
+
   requestAnimationFrame(drawMM);
 }
 drawMM();
- 
+
 // ─── THOUGHT CARDS + PUBLIC FRAGMENT SYSTEM ──────────────────
 const CAT_COLORS={
   consciousness:'#c8a97e',existence:'#c8a07e',time:'#8bb5c8',
   memory:'#8bb5c8',love:'#a07ec8',fear:'#c87e8a',dreams:'#7ec8a0',
   philosophy:'#b0c87e',human:'#c8b07e',other:'#7a7672',fragment:'#8bb5c8'
 };
- 
+
 // Curated seed thoughts
 const SEED_THOUGHTS=[
   {id:'seed_0',cat:'consciousness',title:'The Watcher Within',author:'anonymous · noema',body:'Who observes the observer? At the edge of introspection lies an infinite recursion — the eye that cannot see itself.',fullBody:'Who observes the observer? At the edge of introspection lies an infinite recursion — the eye that cannot see itself yet shapes everything it touches. The very act of trying to catch the self in observation reveals only more observer, never the ground.'},
@@ -2063,22 +1908,22 @@ const SEED_THOUGHTS=[
   {id:'seed_4',cat:'existence',title:'The Permission of Being',author:'anonymous · noema',body:'Nobody asked to be here. And yet here we are, inventing reasons to stay, to build, to leave marks.',fullBody:'Nobody asked to be here. And yet here we are, inventing reasons to stay, to build, to leave marks on a world that will outlast our reasons. Perhaps that uninvited nature is not the tragedy but the beginning of all genuine choice.'},
   {id:'seed_5',cat:'memory',title:'Palimpsest',author:'anonymous · noema',body:'Memory is not storage. It is a constant rewriting — each recall leaves a new impression over the last.',fullBody:'Memory is not storage. It is a constant rewriting — each recall leaves a new impression over the last, until the original is only its own ghost. We remember not the event but the last time we remembered it.'},
 ];
- 
+
 // User-submitted public fragments (localStorage-backed until backend is live)
 let publicFragments = [];
- 
+
 function loadFragments(){
   try{
     const s=localStorage.getItem(FRAGS_KEY);
     if(s) publicFragments=JSON.parse(s);
   }catch(e){ publicFragments=[]; }
 }
- 
+
 function saveFragmentLocal(frag){
   publicFragments.unshift(frag);
   try{ localStorage.setItem(FRAGS_KEY,JSON.stringify(publicFragments)); }catch(e){}
 }
- 
+
 async function loadFragmentsFromBackend(){
   const data = await api('GET','/submissions/public',null,false);
   if(!data||!Array.isArray(data)) return;
@@ -2097,7 +1942,7 @@ async function loadFragmentsFromBackend(){
   publicFragments = [...backendFrags,...localOnly];
   try{ localStorage.setItem(FRAGS_KEY,JSON.stringify(publicFragments)); }catch(e){}
 }
- 
+
 // ── Thought detail modal ──────────────────────────────────────
 function openThoughtModal(t){
   document.getElementById('tm-cat').textContent=(t.cat||'fragment')+(t.isFragment||t.cat==='fragment'?' · submitted':'');
@@ -2113,7 +1958,7 @@ function closeThoughtModal(){
   document.getElementById('thought-modal-overlay').classList.remove('open');
 }
 document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ closeThoughtModal(); closeModal(); } });
- 
+
 // ── Render cards ────────────────────────────────────────────────
 function renderCards(filter='all'){
   const container=document.getElementById('thought-cards');
@@ -2143,13 +1988,13 @@ function renderCards(filter='all'){
   });
 }
 renderCards();
- 
+
 function filterCards(el,cat){
   document.querySelectorAll('.explore-tag').forEach(t=>t.classList.remove('active'));
   el.classList.add('active');
   renderCards(cat);
 }
- 
+
 // ─── Quotes cycling ───────────────────────────────────────────
 const quotes=[
   {q:'The mind is not a vessel to be filled, but a fire to be kindled.',a:'Plutarch'},
@@ -2171,7 +2016,7 @@ setInterval(()=>{
     qEl.style.opacity=1;aEl.style.opacity=1;
   },600);
 },5000);
- 
+
 // ─── AI Companion (calls Claude API, falls back to local responses) ──
 const responses=[
   "That's a thread worth pulling. What happens if you follow it to its most uncomfortable conclusion?",
@@ -2183,7 +2028,7 @@ const responses=[
   "This thought has the shape of something unfinished. Where does it want to go?",
 ];
 let riIdx=0;
- 
+
 async function sendAI(){
   const input=document.getElementById('ai-input');
   const msg=input.value.trim();
@@ -2217,17 +2062,17 @@ async function sendAI(){
   box.scrollTop=box.scrollHeight;
 }
 document.getElementById('ai-input').addEventListener('keydown',e=>{if(e.key==='Enter')sendAI()});
- 
+
 // ─── Auth + Session ───────────────────────────────────────────
 let currentUser=null;
- 
+
 // Restore session on load
 (function restoreSession(){
   const saved=localStorage.getItem(USER_KEY);
   if(saved){ try{ currentUser=JSON.parse(saved); }catch(e){} }
   if(_token&&currentUser){ updateAuthUI(); }
 })();
- 
+
 function openModal(type){
   const overlay=document.getElementById('modal-overlay');
   const modal=document.getElementById('modal');
@@ -2293,10 +2138,10 @@ function openModal(type){
       </div>`;
   }
 }
- 
+
 function closeModal(){document.getElementById('modal-overlay').classList.remove('open')}
 function closeModalOnBg(e){if(e.target===document.getElementById('modal-overlay'))closeModal()}
- 
+
 function _setModalLoading(loading){
   const btn=document.getElementById('modal-submit-btn');
   if(!btn)return;
@@ -2308,7 +2153,7 @@ function _showFormError(id,msg){
   if(!el)return;
   el.textContent=msg;el.classList.add('show');
 }
- 
+
 async function signup(){
   const name=document.getElementById('f-name')?.value.trim();
   const email=document.getElementById('f-email')?.value.trim();
@@ -2317,13 +2162,13 @@ async function signup(){
   if(!name){ _showFormError('fe-name','Name is required.'); return; }
   if(!email||!email.includes('@')){ _showFormError('fe-email','Valid email required.'); return; }
   if(!pass||pass.length<8){ _showFormError('fe-pass','Password must be at least 8 characters.'); return; }
- 
+
   _setModalLoading(true);
   // Try backend
   const username = name.toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_]/g,'').slice(0,30)||'user'+Date.now();
   const result = await api('POST','/signup',{username,email,password:pass},false);
   _setModalLoading(false);
- 
+
   if(result && result.access_token){
     _token=result.access_token;
     currentUser={username:result.user.username,email:result.user.email,role:result.user.role,id:result.user.id};
@@ -2343,16 +2188,16 @@ async function signup(){
     showApiStatus('yellow','Running offline — data saved locally');
   }
 }
- 
+
 async function login(){
   const email=document.getElementById('f-email')?.value.trim();
   const pass=document.getElementById('f-pass')?.value;
   if(!email){ _showFormError&&_showFormError('fe-login','Email required.'); return; }
- 
+
   _setModalLoading(true);
   const result = await api('POST','/login',{email,password:pass||''},false);
   _setModalLoading(false);
- 
+
   if(result && result.access_token){
     _token=result.access_token;
     currentUser={username:result.user.username,email:result.user.email,role:result.user.role,id:result.user.id};
@@ -2380,12 +2225,12 @@ async function login(){
     showApiStatus('err','Login failed — check your credentials');
   }
 }
- 
+
 function resetPw(){
   notify('Recovery link sent — check your mind.');
   setTimeout(closeModal,1200);
 }
- 
+
 async function logout(){
   if(_token) await api('POST','/logout');
   _token=null;
@@ -2395,7 +2240,7 @@ async function logout(){
   updateAuthUI();
   notify('You have left the mind space.');
 }
- 
+
 function updateAuthUI(){
   const chip=document.getElementById('user-chip');
   const btn=document.getElementById('login-btn');
@@ -2409,13 +2254,13 @@ function updateAuthUI(){
   }
   adminShowPanel();
 }
- 
+
 function notify(msg){
   const n=document.getElementById('notif');
   n.textContent=msg;n.classList.add('show');
   setTimeout(()=>n.classList.remove('show'),3200);
 }
- 
+
 // ─── Upload Studio ────────────────────────────────────────────
 function stSyncConnectDropdown(){
   const sel=document.getElementById('st-connect');
@@ -2433,7 +2278,7 @@ document.getElementById('st-connect')?.addEventListener('change',function(){
   const wrap=document.getElementById('st-conntype-wrap');
   if(wrap) wrap.style.display=this.value?'block':'none';
 });
- 
+
 function stRenderList(){
   const list=document.getElementById('st-node-list');
   const empty=document.getElementById('st-empty');
@@ -2462,7 +2307,7 @@ function stRenderList(){
   });
   stSyncConnectDropdown();
 }
- 
+
 function stAddNode(){
   const title=document.getElementById('st-title')?.value.trim();
   const cat=document.getElementById('st-cat')?.value||'other';
@@ -2472,7 +2317,7 @@ function stAddNode(){
   const connType=document.getElementById('st-conntype')?.value||'expansion';
   if(!title){ notify('Give your thought a name.'); return; }
   if(!body){ notify('The thought needs words.'); return; }
- 
+
   // Generate ID safely (max existing id + 1, never reuses)
   const newId=archNodes.length>0?Math.max(...archNodes.map(n=>n.id))+1:100;
   const newNode={
@@ -2485,22 +2330,22 @@ function stAddNode(){
   if(connTo!==''){
     archEdges.push({a:parseInt(connTo),b:newId,type:connType});
   }
- 
+
   stRenderList();
   stClear();
   saveConstellationLocal();
   notify(`"${title}" placed in the constellation.`);
- 
+
   // Also submit to backend if logged in
   if(_token){
     api('POST','/submit-thought',{content:body,title,category:cat}).then(r=>{
       if(r) showApiStatus('ok','Thought submitted to archive');
     });
   }
- 
+
   setTimeout(()=>{ openMmById(newId); },300);
 }
- 
+
 // FIX: stDeleteNode — base nodes CANNOT be deleted, prevents constellation crash
 function stDeleteNode(id,e){
   e.stopPropagation();
@@ -2524,7 +2369,7 @@ function stDeleteNode(id,e){
   saveConstellationLocal();
   notify('Thought removed from constellation.');
 }
- 
+
 function stClear(){
   ['st-title','st-author','st-body'].forEach(id=>{
     const el=document.getElementById(id);
@@ -2535,7 +2380,7 @@ function stClear(){
   const wrap=document.getElementById('st-conntype-wrap');
   if(wrap)wrap.style.display='none';
 }
- 
+
 // FIX: stClearAll — ONLY removes user-added nodes, NEVER base nodes
 function stClearAll(){
   const userNodes=archNodes.filter(n=>!BASE_IDS.has(n.id));
@@ -2553,7 +2398,7 @@ function stClearAll(){
   saveConstellationLocal();
   notify('Your additions cleared. Constellation preserved.');
 }
- 
+
 function stExport(){
   const data={nodes:archNodes,edges:archEdges};
   const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
@@ -2562,7 +2407,7 @@ function stExport(){
   a.download='noema-constellation.json';
   a.click();
 }
- 
+
 // ─── Send a Fragment ──────────────────────────────────────────
 const FF_PROMPTS=[
   'What truth has been haunting you lately?',
@@ -2581,13 +2426,13 @@ setInterval(()=>{
   el.style.opacity='0';
   setTimeout(()=>{ el.textContent=FF_PROMPTS[ffIdx]; el.style.opacity='1'; },500);
 },5500);
- 
+
 async function sendFragment(){
   const name=document.getElementById('ff-name')?.value.trim()||'Anonymous';
   const email=document.getElementById('ff-email')?.value.trim()||'';
   const thought=document.getElementById('ff-thought')?.value.trim();
   if(!thought){ notify('Your fragment needs words before it can travel.'); return; }
- 
+
   // Save fragment to local public archive (visible in Explore Minds immediately)
   const frag={
     id:'frag_'+Date.now(),
@@ -2601,7 +2446,7 @@ async function sendFragment(){
   };
   saveFragmentLocal(frag);
   renderCards(document.querySelector('.explore-tag.active')?.dataset?.cat||'all');
- 
+
   // Try to submit to backend
   if(_token){
     const result=await api('POST','/submit-thought',{
@@ -2617,13 +2462,13 @@ async function sendFragment(){
     const bodyMail=encodeURIComponent(`── NOEMA FRAGMENT ──────────────────────────\n\nFrom:      ${name}\nEmail:     ${email||'(not provided)'}\nTimestamp: ${new Date().toUTCString()}\n\nFragment:\n${thought}\n\n────────────────────────────────────────────\nSubmitted via Noema`);
     window.location.href=`mailto:${to}?subject=${subject}&body=${bodyMail}`;
   }
- 
+
   setTimeout(()=>{
     document.getElementById('fragment-form').style.display='none';
     document.getElementById('ff-success').style.display='block';
   },800);
 }
- 
+
 function resetFragment(){
   document.getElementById('fragment-form').style.display='block';
   document.getElementById('ff-success').style.display='none';
@@ -2632,26 +2477,26 @@ function resetFragment(){
     if(el)el.value='';
   });
 }
- 
+
 // ─── Utility ──────────────────────────────────────────────────
 function navScrollTo(sel){ document.querySelector(sel)?.scrollIntoView({behavior:'smooth'}); }
 function scrollTo(sel){ navScrollTo(sel); } // alias kept for compatibility
 function scrollToTop(){ window.scrollTo({top:0,behavior:'smooth'}); }
 function autoResize(el){el.style.height='auto';el.style.height=el.scrollHeight+'px'}
- 
+
 // ─── Init ─────────────────────────────────────────────────────
 async function init(){
   // 1. Load saved constellation positions from localStorage
   loadConstellationLocal();
- 
+
   // 2. Load fragments from localStorage
   loadFragments();
- 
+
   // 3. Render
   stRenderList();
   renderCards('all');
   updateAuthUI();
- 
+
   // 4. Try to hydrate from backend (non-blocking)
   if(_token){
     const loaded=await loadConstellationFromBackend();
@@ -2660,9 +2505,8 @@ async function init(){
     renderCards(document.querySelector('.explore-tag.active')?.dataset?.cat||'all');
   }
 }
- 
+
 init();
 </script>
 </body>
 </html>
- 
