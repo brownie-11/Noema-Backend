@@ -919,7 +919,7 @@ footer{
       <span id="user-name-chip">●</span>
       <span>Leave</span>
     </div>
-    <span class="nav-link" id="admin-nav-link" style="display:none;color:var(--accent)" onclick="scrollTo('#admin-section')">Admin</span>
+    <span class="nav-link" id="admin-nav-link" style="display:none;color:var(--accent)" onclick="scrollToAdmin()">⬡ Admin</span>
     <button class="nav-btn" onclick="openModal('login')" id="login-btn">Enter</button>
   </div>
 </nav>
@@ -931,6 +931,7 @@ footer{
   <p class="hero-sub">Noema is a mind-space for thinkers, writers, and dreamers — where every idea becomes a living page, every connection a constellation, every thought a universe.</p>
   <div class="hero-cta">
     <button class="btn-primary" onclick="openModal('signup')">Begin your mind</button>
+    <a class="btn-primary" href="thoughts.html" style="text-decoration:none;display:inline-flex;align-items:center;gap:.5rem;">Read Thoughts</a>
     <button class="btn-secondary" onclick="scrollTo('#explore')">Explore minds</button>
   </div>
 </section>
@@ -1256,6 +1257,53 @@ footer{
       The mind<br/><em>behind the minds.</em>
     </h2>
 
+    <!-- ── PUBLISH A THOUGHT ── -->
+    <div style="margin-bottom:3rem">
+      <div class="sp-label" style="margin-bottom:1.5rem">Publish a thought to thoughts.html</div>
+      <div style="border:1px solid var(--border);border-radius:2px;background:var(--surface);overflow:hidden">
+        <div style="display:grid;grid-template-columns:1fr auto;gap:1px;border-bottom:1px solid var(--border)">
+          <input id="thought-title" placeholder="Title of this thought…"
+            style="padding:1.2rem 1.5rem;background:transparent;border:none;color:var(--text);font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:300;outline:none;width:100%"/>
+          <select id="thought-category"
+            style="padding:1.2rem 1.5rem;background:var(--deep);border:none;border-left:1px solid var(--border);color:var(--muted);font-family:'DM Mono',monospace;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;outline:none;cursor:pointer;min-width:140px">
+            <option value="consciousness">Consciousness</option>
+            <option value="existence">Existence</option>
+            <option value="time">Time</option>
+            <option value="memory">Memory</option>
+            <option value="love">Love</option>
+            <option value="fear">Fear</option>
+            <option value="dreams">Dreams</option>
+            <option value="philosophy">Philosophy</option>
+            <option value="human">Human Nature</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div style="border-bottom:1px solid var(--border);padding:.6rem 1.5rem">
+          <div style="font-family:'DM Mono',monospace;font-size:.56rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:.4rem">Preview line (shown on thought cards)</div>
+          <input id="thought-preview" placeholder="One compelling sentence that makes readers want to open this thought…"
+            style="width:100%;background:transparent;border:none;color:rgba(232,228,220,.6);font-family:'Cormorant Garamond',serif;font-size:.98rem;font-style:italic;outline:none;padding:.2rem 0"/>
+        </div>
+        <textarea id="thought-body" rows="10" placeholder="Write the full thought here…"
+          style="width:100%;padding:1.5rem;background:transparent;border:none;color:var(--text);font-family:'Cormorant Garamond',serif;font-size:1.08rem;line-height:1.88;resize:vertical;outline:none;min-height:220px;border-bottom:1px solid var(--border)"></textarea>
+        <div style="padding:.9rem 1.5rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem">
+          <div style="font-family:'DM Mono',monospace;font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)" id="thought-status">Ready to publish</div>
+          <div style="display:flex;gap:.7rem">
+            <button class="sp-btn" onclick="clearThoughtForm()">Clear</button>
+            <button class="sp-btn primary" onclick="publishThought()">Publish to archive →</button>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:1.5rem">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:.8rem">
+          <div style="font-family:'DM Mono',monospace;font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);opacity:.8">Published thoughts</div>
+          <button class="sp-btn" onclick="adminLoadThoughts()">Refresh list</button>
+        </div>
+        <div id="admin-thoughts-list" style="border:1px solid var(--border);border-radius:2px;background:var(--surface)">
+          <div style="padding:1.5rem;text-align:center;font-family:'Cormorant Garamond',serif;font-style:italic;color:rgba(232,228,220,.2)">Click Refresh to see published thoughts</div>
+        </div>
+      </div>
+    </div>
+
     <!-- Stats row -->
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1px;border:1px solid var(--border);margin-bottom:3rem">
       <div style="background:var(--deep);padding:2rem;text-align:center">
@@ -1337,21 +1385,9 @@ async function api(method, path, body=null, auth=true){
       method, headers,
       body: body ? JSON.stringify(body) : undefined
     });
-    // Only expire session on 401 for authenticated requests
-    if(r.status===401 && auth && _token){
-      _handleAuthExpired();
-      return null;
-    }
-    if(r.ok){
-      try{ return await r.json(); }catch(e){ return {}; }
-    }
-    // Log non-ok responses for debugging
-    console.warn(`API ${method} ${path} returned ${r.status}`);
-    return null;
-  }catch(e){
-    console.warn(`API ${method} ${path} network error:`, e.message);
-    return null;
-  }
+    if(r.status===401){ _handleAuthExpired(); return null; }
+    return r.ok ? await r.json() : null;
+  }catch(e){ return null; /* offline → fallback */ }
 }
 
 function _handleAuthExpired(){
@@ -1361,8 +1397,6 @@ function _handleAuthExpired(){
   currentUser=null;
   updateAuthUI();
   notify('Session expired — please sign in again.');
-  // Open login modal automatically
-  setTimeout(()=> openModal('login'), 800);
 }
 
 // ── API status indicator ─────────────────────────────────────────
@@ -1383,12 +1417,22 @@ function adminShowPanel(){
   const link    = document.getElementById('admin-nav-link');
   if(currentUser?.role === 'admin'){
     if(section) section.style.display = 'block';
-    if(link)    link.style.display    = '';
+    if(link){
+      link.style.display = '';
+      link.style.color = 'var(--accent)';
+      link.style.border = '1px solid rgba(200,169,126,.3)';
+      link.style.padding = '.3rem .7rem';
+      link.style.borderRadius = '2px';
+    }
     adminLoadStats();
   } else {
     if(section) section.style.display = 'none';
     if(link)    link.style.display    = 'none';
   }
+}
+
+function scrollToAdmin(){
+  document.getElementById('admin-section')?.scrollIntoView({behavior:'smooth'});
 }
 
 async function adminLoadStats(){
@@ -1406,14 +1450,9 @@ async function adminLoadSubmissions(status=''){
   const path = status
     ? `/admin/submissions?status_filter=${status}`
     : '/admin/submissions';
-  const box  = document.getElementById('admin-submissions-list');
-  box.innerHTML = `<div style="padding:1.5rem;text-align:center;font-family:'DM Mono',monospace;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)">Loading...</div>`;
   const subs = await api('GET', path);
-  if(subs === null){
-    box.innerHTML = `<div style="padding:2rem;text-align:center;font-family:'DM Mono',monospace;font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;color:#c87e8a">Could not load submissions — session may have expired. Please log out and back in.</div>`;
-    return;
-  }
-  if(subs.length === 0){
+  const box  = document.getElementById('admin-submissions-list');
+  if(!subs || subs.length === 0){
     box.innerHTML = `<div style="padding:2rem;text-align:center;font-family:'Cormorant Garamond',serif;font-style:italic;color:rgba(232,228,220,.2)">No submissions found.</div>`;
     return;
   }
@@ -1446,15 +1485,10 @@ async function adminLoadSubmissions(status=''){
 }
 
 async function adminLoadUsers(){
-  const box = document.getElementById('admin-users-list');
-  box.innerHTML = `<div style="padding:1.5rem;text-align:center;font-family:'DM Mono',monospace;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)">Loading...</div>`;
   const users = await api('GET', '/admin/users');
-  if(users === null){
-    box.innerHTML = `<div style="padding:2rem;text-align:center;font-family:'DM Mono',monospace;font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;color:#c87e8a">Could not load users — check your session and try again.</div>`;
-    return;
-  }
-  if(users.length === 0){
-    box.innerHTML = `<div style="padding:2rem;text-align:center;font-family:'Cormorant Garamond',serif;font-style:italic;color:rgba(232,228,220,.2)">No users registered yet.</div>`;
+  const box   = document.getElementById('admin-users-list');
+  if(!users || users.length === 0){
+    box.innerHTML = `<div style="padding:2rem;text-align:center;font-family:'Cormorant Garamond',serif;font-style:italic;color:rgba(232,228,220,.2)">No users yet.</div>`;
     return;
   }
   box.innerHTML = users.map(u => {
@@ -1509,6 +1543,86 @@ async function adminDelete(id){
 async function adminPromote(id){
   const r = await api('POST', `/admin/promote/${id}`);
   if(r){ notify(`"${r.title}" is now a constellation node.`); adminLoadSubmissions(); adminLoadStats(); }
+}
+
+// ── Thoughts archive (thoughts.html) ─────────────────────────────────────────
+
+async function publishThought(){
+  const title    = document.getElementById('thought-title')?.value.trim();
+  const category = document.getElementById('thought-category')?.value || 'other';
+  const preview  = document.getElementById('thought-preview')?.value.trim();
+  const body     = document.getElementById('thought-body')?.value.trim();
+  if(!title){   setThoughtStatus('Give this thought a title.','err'); return; }
+  if(!preview){ setThoughtStatus('Add a preview line.','err'); return; }
+  if(!body){    setThoughtStatus('The thought needs a body.','err'); return; }
+  setThoughtStatus('Publishing…');
+  const result = await api('POST','/thoughts',{
+    title, category, preview, body,
+    author: currentUser?.username || 'William · Noema',
+    published: true
+  });
+  if(result && result.id){
+    notify(`"${result.title}" published to the archive.`);
+    setThoughtStatus('Published ✓','ok');
+    clearThoughtForm();
+    adminLoadThoughts();
+  } else {
+    setThoughtStatus('Failed to publish. Check backend /thoughts route is added.','err');
+  }
+}
+
+function setThoughtStatus(msg, state=''){
+  const el = document.getElementById('thought-status');
+  if(!el) return;
+  el.textContent = msg;
+  el.style.color = state==='err' ? '#c87e8a' : state==='ok' ? '#7ec8a0' : 'var(--muted)';
+  if(state==='ok') setTimeout(()=>{ el.textContent='Ready to publish'; el.style.color='var(--muted)'; },2500);
+}
+
+function clearThoughtForm(){
+  ['thought-title','thought-preview','thought-body'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.value='';
+  });
+  const sel=document.getElementById('thought-category');
+  if(sel) sel.value='consciousness';
+  setThoughtStatus('Ready to publish');
+}
+
+async function adminLoadThoughts(){
+  const box = document.getElementById('admin-thoughts-list');
+  box.innerHTML=`<div style="padding:1rem;text-align:center;font-family:'DM Mono',monospace;font-size:.6rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)">Loading…</div>`;
+  const data = await api('GET','/thoughts/admin',null,true);
+  if(!data){
+    box.innerHTML=`<div style="padding:1.5rem;text-align:center;font-family:'DM Mono',monospace;font-size:.62rem;text-transform:uppercase;letter-spacing:.1em;color:#c87e8a">Could not load — make sure /thoughts route is added to the backend.</div>`;
+    return;
+  }
+  if(data.length===0){
+    box.innerHTML=`<div style="padding:1.5rem;text-align:center;font-family:'Cormorant Garamond',serif;font-style:italic;color:rgba(232,228,220,.2)">No thoughts published yet.</div>`;
+    return;
+  }
+  box.innerHTML = data.map(t=>`
+    <div style="padding:1rem 1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:1rem;flex-wrap:wrap">
+      <div style="flex:1;min-width:200px">
+        <div style="font-family:'DM Mono',monospace;font-size:.55rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:.3rem">${t.category} · ${t.published?'published':'draft'}</div>
+        <div style="font-family:'Cormorant Garamond',serif;font-size:1rem;margin-bottom:.2rem">${t.title}</div>
+        <div style="font-family:'DM Mono',monospace;font-size:.55rem;color:var(--muted)">${(t.preview||'').slice(0,80)}${(t.preview||'').length>80?'…':''}</div>
+      </div>
+      <div style="display:flex;gap:.4rem;flex-shrink:0">
+        <button class="sp-btn" style="font-size:.6rem;padding:.35rem .8rem" onclick="adminToggleThought(${t.id},${t.published})">${t.published?'Unpublish':'Publish'}</button>
+        <button class="sp-btn" style="font-size:.6rem;padding:.35rem .8rem;color:#c87e8a" onclick="adminDeleteThought(${t.id},'${t.title.replace(/'/g,"\'")}')">Delete</button>
+      </div>
+    </div>`).join('');
+}
+
+async function adminToggleThought(id, pub){
+  const r = await api('PUT',`/thoughts/admin/${id}`,{published:!pub});
+  if(r){ notify(pub?'Thought unpublished.':'Thought published.'); adminLoadThoughts(); }
+}
+
+async function adminDeleteThought(id, title){
+  if(!confirm(`Delete "${title}"? This cannot be undone.`)) return;
+  const r = await api('DELETE',`/thoughts/admin/${id}`);
+  if(r){ notify(`"${title}" deleted.`); adminLoadThoughts(); }
 }
 
 // ─── Background canvas ───────────────────────────────────────────
@@ -2220,20 +2334,23 @@ async function login(){
     localStorage.setItem(TOKEN_KEY,_token);
     localStorage.setItem(USER_KEY,JSON.stringify(currentUser));
     updateAuthUI(); closeModal();
-    notify(`Welcome back. The thoughts await.`);
+    notify(`Welcome back, ${currentUser.username}. The thoughts await.`);
     showApiStatus('ok','Connected · session restored');
-    // Load their constellation data
+    if(currentUser.role === 'admin'){
+      setTimeout(()=>{
+        notify('Admin panel ready — scroll down or click ⬡ Admin in nav.');
+        document.getElementById('admin-section')?.scrollIntoView({behavior:'smooth'});
+      }, 1000);
+    }
     const loaded = await loadConstellationFromBackend();
     if(loaded){ stRenderList(); }
     await loadFragmentsFromBackend();
     renderCards(document.querySelector('.explore-tag.active')?.dataset?.cat||'all');
   } else {
+    // Show the actual error — never silently create a fake local session
     _setModalLoading(false);
-    // result is null = either wrong password OR network error
-    // Try to distinguish by checking if we can reach the backend
-    const msg = 'Incorrect email or password.';
-    _showFormError('fe-login', msg);
-    showApiStatus('err','Login failed');
+    _showFormError('fe-login','Incorrect email or password.');
+    showApiStatus('err','Login failed — check your credentials');
   }
 }
 
@@ -2243,23 +2360,13 @@ function resetPw(){
 }
 
 async function logout(){
-  if(_token){
-    try{ await api('POST','/logout'); }catch(e){}
-  }
-  // Clear all auth state completely
-  _token = null;
-  currentUser = null;
+  if(_token) await api('POST','/logout');
+  _token=null;
+  currentUser=null;
   localStorage.removeItem(TOKEN_KEY);
   localStorage.removeItem(USER_KEY);
-  // Hide admin panel immediately
-  const adminSection = document.getElementById('admin-section');
-  const adminLink    = document.getElementById('admin-nav-link');
-  if(adminSection) adminSection.style.display = 'none';
-  if(adminLink)    adminLink.style.display    = 'none';
   updateAuthUI();
   notify('You have left the mind space.');
-  // Scroll back to top
-  window.scrollTo({top:0, behavior:'smooth'});
 }
 
 function updateAuthUI(){
