@@ -8,7 +8,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from backend.database import init_db, SessionLocal
-from backend.routes import auth, users, submissions, constellation, admin
+from backend.routes import auth, users, submissions, constellation, admin, thoughts
 
 logging.basicConfig(
     level=logging.INFO,
